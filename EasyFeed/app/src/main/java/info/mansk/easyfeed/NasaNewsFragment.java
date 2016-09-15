@@ -1,0 +1,167 @@
+package info.mansk.easyfeed;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.Bundle;
+import android.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link NasaNewsFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link NasaNewsFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class NasaNewsFragment extends Fragment {
+
+    private  ImageDownloader ImageDownloaderFragment;
+    private ListView listView;
+
+
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+
+    private OnFragmentInteractionListener mListener;
+
+    public NasaNewsFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment NasaNewsListFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static NasaNewsFragment newInstance(String param1, String param2) {
+        NasaNewsFragment fragment = new NasaNewsFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+        // setRetainInstance(true);
+        IntentFilter intentFilter = new IntentFilter(RssService.ACTION_RSS_PARSED);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(resultReceiver, intentFilter);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_nasa_news, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //ArrayList<HotelItem> listData = getListData();
+        listView = (ListView) getActivity().findViewById(R.id.nasa_news_list);
+
+        startService();
+    }
+
+    private void startService() {
+        Intent intent = new Intent(getActivity(), RssService.class);
+        getActivity().startService(intent);
+    }
+
+    private BroadcastReceiver resultReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<RssItem> items = (ArrayList<RssItem>) intent.getSerializableExtra(RssService.ITEMS);
+
+            if (items != null) {
+
+                listView.setAdapter(new ItemListAdapter(getActivity(), items, ImageDownloaderFragment));
+
+            } else {
+                Toast.makeText(getActivity(), "An error occurred while downloading the rss feed.",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+
+    public void setImageDownloaderFragment( ImageDownloader imageDownloaderFragment){
+        ImageDownloaderFragment =   imageDownloaderFragment;
+    }
+
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onStop() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(resultReceiver);
+        super.onStop();
+
+
+    }
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+    }
+}

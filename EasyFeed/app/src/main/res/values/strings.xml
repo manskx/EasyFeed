@@ -3,6 +3,11 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
+    <string name="nav_header_title">Easy Rss Feed</string>
+    <string name="nav_header_email">ahmed.mansy@msn.com</string>
     <string name="action_settings">Settings</string>
+    <string name="nav_drawer_nasa">NASA News</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
