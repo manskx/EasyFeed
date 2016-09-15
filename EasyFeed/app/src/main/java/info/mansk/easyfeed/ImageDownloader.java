@@ -25,7 +25,7 @@ import java.net.URL;
  * A simple {@link Fragment} subclass.
  */
 public class ImageDownloader extends Fragment {
-
+    private static final String TAG = ImageDownloader.class.getSimpleName();
 
     public ImageDownloader() {
         // Required empty public constructor

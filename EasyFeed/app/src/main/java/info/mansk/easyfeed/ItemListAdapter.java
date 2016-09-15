@@ -41,8 +41,8 @@ public class ItemListAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.listview_detailed, null);
             currViewItem   =   new ViewItem();
             currViewItem.titleView =   (TextView) convertView.findViewById(R.id.item_Title);
-            currViewItem.descriptionView =   (TextView) convertView.findViewById(R.id.item_description);
-            currViewItem.dateView =   (TextView) convertView.findViewById(R.id.item_description);
+           // currViewItem.descriptionView =   (TextView) convertView.findViewById(R.id.item_description);
+            currViewItem.dateView =   (TextView) convertView.findViewById(R.id.item_date);
             currViewItem.imageView = (ImageView) convertView.findViewById(R.id.item_icon_image);
             convertView.setTag(currViewItem);
         } else {
@@ -51,7 +51,7 @@ public class ItemListAdapter extends BaseAdapter {
 
         RssItem currItem =   listItems.get(position);
         currViewItem.titleView.setText(currItem.getTitle());
-        currViewItem.descriptionView.setText("By, " + currItem.getDescription());
+       // currViewItem.descriptionView.setText(currItem.getDescription());
         currViewItem.dateView.setText(currItem.getDate());
 
         if (currViewItem.imageView != null) {

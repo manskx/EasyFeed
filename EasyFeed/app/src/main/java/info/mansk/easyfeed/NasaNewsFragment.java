@@ -7,7 +7,9 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,23 +25,16 @@ import java.util.List;
  * Activities that contain this fragment must implement the
  * {@link NasaNewsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link NasaNewsFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
 public class NasaNewsFragment extends Fragment {
 
-    private  ImageDownloader ImageDownloaderFragment;
-    private ListView listView;
+    private static ImageDownloader ImageDownloaderFragment;
+    private  ListView listView;
+    private Parcelable listViewState;
+
+    private static final String TAG = NasaNewsFragment.class.getSimpleName();
 
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -47,31 +42,12 @@ public class NasaNewsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment NasaNewsListFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static NasaNewsFragment newInstance(String param1, String param2) {
-        NasaNewsFragment fragment = new NasaNewsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
         // setRetainInstance(true);
         IntentFilter intentFilter = new IntentFilter(RssService.ACTION_RSS_PARSED);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(resultReceiver, intentFilter);
@@ -80,8 +56,24 @@ public class NasaNewsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_nasa_news, container, false);
+    }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+
+        }
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save ListView state @ onPause
+        Log.d(TAG, "saving listview state @ onPause");
+        listViewState = listView.onSaveInstanceState();
+        savedInstanceState.putParcelable("listViewState", listViewState);
+            super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -89,7 +81,9 @@ public class NasaNewsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //ArrayList<HotelItem> listData = getListData();
         listView = (ListView) getActivity().findViewById(R.id.nasa_news_list);
-
+        if (savedInstanceState != null) {
+            listViewState   =   savedInstanceState.getParcelable("listViewState");
+        }
         startService();
     }
 
@@ -106,7 +100,10 @@ public class NasaNewsFragment extends Fragment {
             if (items != null) {
 
                 listView.setAdapter(new ItemListAdapter(getActivity(), items, ImageDownloaderFragment));
-
+                if(listViewState != null) {
+                    Log.d(TAG, "trying to restore listview state..");
+                    listView.onRestoreInstanceState(listViewState);
+                }
             } else {
                 Toast.makeText(getActivity(), "An error occurred while downloading the rss feed.",
                         Toast.LENGTH_LONG).show();
@@ -135,6 +132,12 @@ public class NasaNewsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onPause() {
+
+        super.onPause();
     }
 
     @Override
