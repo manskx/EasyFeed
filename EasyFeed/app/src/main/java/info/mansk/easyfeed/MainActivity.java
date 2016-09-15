@@ -14,7 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, NasaNewsFragment.OnFragmentInteractionListener {
     private static final String TAG_TASK_FRAGMENT = "image_downloader_fragment";
     private ImageDownloader imageDownloaderFragment;
     @Override
@@ -45,16 +45,25 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
 
+    public void onRssItemSelected(RssItem selectedRssItem) {
+        // If the frag is not available, we're in the one-pane layout and must swap frags...
+
+        // Create fragment and give it an argument for the selected article
+        RssItemDetailsFragment newFragment = new RssItemDetailsFragment();
+        newFragment.setSelectedRssItem(selectedRssItem);
+        newFragment.setImageDownloaderFragment(imageDownloaderFragment);
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        ft.replace(R.id.mainFrame, newFragment);
+        ft.addToBackStack(null);
+
+        // Commit the transaction
+        ft.commit();
+    }
 
 
 

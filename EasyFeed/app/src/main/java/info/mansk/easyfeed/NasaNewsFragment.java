@@ -1,5 +1,6 @@
 package info.mansk.easyfeed;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -26,7 +28,7 @@ import java.util.List;
  * {@link NasaNewsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class NasaNewsFragment extends Fragment {
+public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemClickListener  {
 
     private static ImageDownloader ImageDownloaderFragment;
     private  ListView listView;
@@ -44,14 +46,7 @@ public class NasaNewsFragment extends Fragment {
 
 
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        // setRetainInstance(true);
-        IntentFilter intentFilter = new IntentFilter(RssService.ACTION_RSS_PARSED);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(resultReceiver, intentFilter);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,6 +79,9 @@ public class NasaNewsFragment extends Fragment {
         if (savedInstanceState != null) {
             listViewState   =   savedInstanceState.getParcelable("listViewState");
         }
+        IntentFilter intentFilter = new IntentFilter(RssService.ACTION_RSS_PARSED);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(resultReceiver, intentFilter);
+        listView.setOnItemClickListener(this);
         startService();
     }
 
@@ -116,12 +114,6 @@ public class NasaNewsFragment extends Fragment {
     }
 
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -135,8 +127,24 @@ public class NasaNewsFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception.
+        try {
+            mListener = (OnFragmentInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        // Save ListView state @ onPause
+        Log.d(TAG, "saving listview state @ onPause");
+        listViewState = listView.onSaveInstanceState();
         super.onPause();
     }
 
@@ -145,7 +153,16 @@ public class NasaNewsFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+    @Override
+    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        // Notify the parent activity of selected item
+        ItemListAdapter adapter = (ItemListAdapter) parent.getAdapter();
+        RssItem item = (RssItem) adapter.getItem(position);
+        mListener.onRssItemSelected(item);
 
+        // Set the item as checked to be highlighted when in two-pane layout
+       // getListView().setItemChecked(position, true);
+    }
     @Override
     public void onStop() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(resultReceiver);
@@ -165,6 +182,6 @@ public class NasaNewsFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onRssItemSelected(RssItem selectedItem);
     }
 }
