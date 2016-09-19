@@ -96,12 +96,14 @@ public class ImageDownloader extends Fragment {
 
                 int statusCode = urlConnection.getResponseCode();
                 if (statusCode != 200) {
+                    Log.w("ImageDownloader", "Error downloading image from " + url);
                     return null;
                 }
 
                 InputStream inputStream = urlConnection.getInputStream();
                 if (inputStream != null) {
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    Log.w("ImageDownloader", "Image downloaded successfully from: " + url);
                     return bitmap;
                 }
             } catch (Exception e) {

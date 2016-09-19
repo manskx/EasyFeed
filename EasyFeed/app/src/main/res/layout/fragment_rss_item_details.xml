@@ -5,35 +5,50 @@
     tools:context="info.mansk.easyfeed.RssItemDetailsFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <ImageView
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:id="@+id/item_icon_image"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
-        />
 
-    <TextView
+
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/item_Title"
-        android:layout_toRightOf="@id/item_icon_image"
-        android:paddingTop="5dp"
-        android:textStyle="bold"
-        />
-    <TextView
-        android:id="@+id/item_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/item_Title"
-        android:layout_marginTop="5dp"
-        android:layout_toRightOf="@id/item_icon_image" />
+        android:layout_height="match_parent"
+        android:layout_gravity="left|top"
+        android:weightSum="1">
+        <ImageView
+            android:layout_width="148dp"
+            android:layout_height="70dp"
+            android:id="@+id/item_icon_image"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:layout_weight="0.20"
+            android:layout_gravity="center_horizontal" />
 
-    <TextView
-        android:id="@+id/item_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/item_description"
-        android:layout_alignParentRight="true" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/item_Title"
+            android:layout_toRightOf="@id/item_icon_image"
+            android:paddingTop="5dp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/item_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/item_Title"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center|right" />
+        <TextView
+            android:id="@+id/item_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/item_Title"
+            android:layout_marginTop="5dp"
+            android:layout_gravity="left|center" />
+
+
+
+
+
+    </LinearLayout>
 </FrameLayout>
