@@ -4,7 +4,7 @@ This is an android sample application " EasyFeed" to get data from public RSS fe
 
 ### What is this repository for? ###
 
-* Quick summary
+* This is sample android application for reading and displaying data from public rss feed.
 * Version: Beta Version V0.1
 
 ### How do I get set up? ###
