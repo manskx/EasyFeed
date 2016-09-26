@@ -22,6 +22,7 @@ import java.util.List;
  * helper methods.
  */
 public class RssService extends IntentService {
+    private static final String TAG =   "RssService";
     private static final String RSS_LINK = "http://www.nasa.gov/rss/dyn/educationnews.rss";
     public static final String ITEMS = "items";
     public static final String ACTION_RSS_PARSED = "info.mansk.easyfeed.action.ACTION_RSS_PARSED";
@@ -36,7 +37,7 @@ public class RssService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d("", "Service started");
+        Log.d(TAG, "Service started");
 
         List<RssItem> rssItems = null;
 
@@ -54,7 +55,7 @@ public class RssService extends IntentService {
             URL url = new URL(link);
             return url.openConnection().getInputStream();
         } catch (IOException e) {
-            Log.w( "", "Exception while retrieving the input stream", e);
+            Log.w( TAG, "Exception while retrieving the input stream", e);
             return null;
         }
     }

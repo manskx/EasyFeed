@@ -22,7 +22,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * A simple {@link Fragment} subclass.
+ * ImageDownloader ua a retained Fragment using to download image using async task
+ * Without layout file
+ * {@link Fragment} subclass.
  */
 public class ImageDownloader extends Fragment {
     private static final String TAG = ImageDownloader.class.getSimpleName();

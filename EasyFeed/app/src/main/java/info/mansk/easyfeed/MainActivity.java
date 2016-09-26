@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation fragments
         if (id == R.id.nav_nasa_news) {
             CurrentFragment =   new NasaNewsFragment();
-            ((NasaNewsFragment)CurrentFragment).setImageDownloaderFragment(imageDownloaderFragment);
         }
         ft.replace(R.id.mainFrame, CurrentFragment);
         ft.commit();

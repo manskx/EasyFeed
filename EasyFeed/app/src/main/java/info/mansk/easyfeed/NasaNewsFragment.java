@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Parcelable;
@@ -19,7 +18,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import info.mansk.easyfeed.cache.ImageCache;
+import info.mansk.easyfeed.cache.ImageFetcher;
 
 
 /**
@@ -30,9 +31,14 @@ import java.util.List;
  */
 public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemClickListener  {
 
-    private static ImageDownloader ImageDownloaderFragment;
-    private  ListView listView;
+    // now using image fetcher -- v0.2
+    // private static ImageDownloader ImageDownloaderFragment;
+    private int mImageThumbSize;
+    private static final String IMAGE_CACHE_DIR = "thumbs";
+
+    private ListView listView;
     private Parcelable listViewState;
+    private ImageFetcher mImageFetcher;
 
     private static final String TAG = NasaNewsFragment.class.getSimpleName();
 
@@ -45,7 +51,24 @@ public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemCli
     }
 
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
+        mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);;
+
+
+        ImageCache.ImageCacheParams cacheParams =
+                new ImageCache.ImageCacheParams(getActivity(), IMAGE_CACHE_DIR);
+
+        cacheParams.setMemCacheSizePercent(0.25f); // Set memory cache to 25% of app memory
+
+        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
+        mImageFetcher = new ImageFetcher(getActivity(), mImageThumbSize);
+        mImageFetcher.setLoadingImage(R.drawable.ic_menu_gallery);
+        mImageFetcher.addImageCache(getActivity().getFragmentManager(), cacheParams);
+    }
 
 
     @Override
@@ -64,10 +87,12 @@ public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemCli
     }
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save ListView state @ onPause
+        // Save ListView state
         Log.d(TAG, "saving listview state @ onPause");
-        listViewState = listView.onSaveInstanceState();
-        savedInstanceState.putParcelable("listViewState", listViewState);
+        if (listView != null){
+            listViewState = listView.onSaveInstanceState();
+            savedInstanceState.putParcelable("listViewState", listViewState);
+        }
             super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -97,7 +122,7 @@ public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemCli
 
             if (items != null) {
 
-                listView.setAdapter(new ItemListAdapter(getActivity(), items, ImageDownloaderFragment));
+                listView.setAdapter(new ItemListAdapter(getActivity(), items, mImageFetcher));
                 if(listViewState != null) {
                     Log.d(TAG, "trying to restore listview state..");
                     listView.onRestoreInstanceState(listViewState);
@@ -108,11 +133,6 @@ public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemCli
             }
         }
     };
-
-    public void setImageDownloaderFragment( ImageDownloader imageDownloaderFragment){
-        ImageDownloaderFragment =   imageDownloaderFragment;
-    }
-
 
 
     @Override
@@ -139,12 +159,19 @@ public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemCli
                     + " must implement OnHeadlineSelectedListener");
         }
     }
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        mImageFetcher.setExitTasksEarly(false);
+    }
     @Override
     public void onPause() {
         // Save ListView state @ onPause
         Log.d(TAG, "saving listview state @ onPause");
         listViewState = listView.onSaveInstanceState();
+        mImageFetcher.setPauseWork(false);
+        mImageFetcher.setExitTasksEarly(true);
+        mImageFetcher.flushCache();
         super.onPause();
     }
 
@@ -169,6 +196,12 @@ public class NasaNewsFragment extends Fragment  implements AdapterView.OnItemCli
         super.onStop();
 
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mImageFetcher.closeCache();
     }
     /**
      * This interface must be implemented by activities that contain this

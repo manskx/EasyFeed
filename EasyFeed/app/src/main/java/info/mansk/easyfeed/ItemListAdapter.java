@@ -10,17 +10,20 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import info.mansk.easyfeed.cache.ImageFetcher;
+
 /**
  * Created by Ahmed on 9/15/2016.
  */
 public class ItemListAdapter extends BaseAdapter {
     private ArrayList<RssItem> listItems;
     private LayoutInflater layoutInflater;
-    private ImageDownloader ImageDownloaderFragment;
-    public ItemListAdapter(Context context, ArrayList<RssItem> listData, ImageDownloader imageDownloader) {
+    private ImageFetcher mImageFetcher;
+
+    public ItemListAdapter(Context context, ArrayList<RssItem> listData, ImageFetcher imageFetcher) {
         this.listItems = listData;
         layoutInflater = LayoutInflater.from(context);
-        ImageDownloaderFragment =   imageDownloader;
+        mImageFetcher   =   imageFetcher;
     }
 
     @Override
@@ -55,7 +58,9 @@ public class ItemListAdapter extends BaseAdapter {
         currViewItem.dateView.setText(currItem.getDate());
 
         if (currViewItem.imageView != null) {
-            ImageDownloaderFragment.DownloadAndShowImage(currViewItem.imageView,currItem.getImageURL());
+            mImageFetcher.loadImage(currItem.getImageURL(), currViewItem.imageView);
+            // now using image fetcher -- v0.2
+            //  ImageDownloaderFragment.DownloadAndShowImage(currViewItem.imageView,currItem.getImageURL());
         }
         return convertView;
     }
